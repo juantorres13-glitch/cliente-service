@@ -33,5 +33,4 @@ build/
 .vscode/
 
 # Configuracion local con credenciales
-/src/main/resources/application.properties
 /compose.yml

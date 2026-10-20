@@ -92,12 +92,11 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- H2 para las pruebas de repositorio -->
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <!-- H2 para la ejecución de la aplicación y las pruebas -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
 
 		<!-- Integración de Spring Boot con Testcontainers -->
 		<dependency>
