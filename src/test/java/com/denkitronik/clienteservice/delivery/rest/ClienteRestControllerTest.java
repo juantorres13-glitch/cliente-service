@@ -125,6 +125,21 @@ class ClienteRestControllerTest {
                 .andExpect(jsonPath("$.errors").exists());
     }
 
+
+    // Rechazar un cliente con correo inválido
+    @Test
+    void crearCliente_correoInvalido_debeRetornar400() throws Exception {
+        Cliente clienteInvalido = new Cliente();
+        clienteInvalido.setNombre("Ada");
+        clienteInvalido.setApellido("Lovelace");
+        clienteInvalido.setEmail("correo-invalido");
+
+        mockMvc.perform(post(BASE + "/clientes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(clienteInvalido)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors").exists());
+    }
     // 7. Actualizar un cliente existente
     @Test
     void actualizarCliente_valido_debeRetornar201() throws Exception {
