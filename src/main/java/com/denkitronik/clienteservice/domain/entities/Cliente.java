@@ -2,16 +2,19 @@ package com.denkitronik.clienteservice.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity
 @Table(name = "clientes")
-@Getter
-@Setter
-public class Cliente {
+public class Cliente implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,10 +26,11 @@ public class Cliente {
     private String nombre;
 
     @NotEmpty(message = "El apellido no puede estar vacío")
+    @Column(nullable = false)
     private String apellido;
 
     @NotEmpty(message = "El email no puede estar vacío")
-    @Email(message = "Debe ser una dirección de email válida")
+    @Email(message = "Debe ingresar una dirección de email válida")
     @Column(nullable = false, unique = true)
     private String email;
 
@@ -36,7 +40,7 @@ public class Cliente {
 
     private String foto;
 
-    @NotNull(message = "La región es obligatoria")
+    @NotNull(message = "La región no puede ser nula")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "region_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -44,6 +48,66 @@ public class Cliente {
 
     @PrePersist
     public void prePersist() {
-        createAt = new Date();
+        if (this.createAt == null) {
+            this.createAt = new Date();
+        }
+    }
+
+    // --- GETTERS Y SETTERS ---
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getApellido() {
+        return apellido;
+    }
+
+    public void setApellido(String apellido) {
+        this.apellido = apellido;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Date getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(Date createAt) {
+        this.createAt = createAt;
+    }
+
+    public String getFoto() {
+        return foto;
+    }
+
+    public void setFoto(String foto) {
+        this.foto = foto;
+    }
+
+    public Region getRegion() {
+        return region;
+    }
+
+    public void setRegion(Region region) {
+        this.region = region;
     }
 }

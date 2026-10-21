@@ -5,8 +5,6 @@ import com.denkitronik.clienteservice.domain.entities.Region;
 import com.denkitronik.clienteservice.domain.exception.ClienteNotFoundException;
 import com.denkitronik.clienteservice.domain.exception.ClienteServiceException;
 import com.denkitronik.clienteservice.domain.repositories.IClienteDao;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -21,9 +19,6 @@ public class ClienteServiceImpl implements IClienteService {
 
     @Autowired
     private IClienteDao clienteDao;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Override
     @Transactional(readOnly = true)
@@ -48,19 +43,6 @@ public class ClienteServiceImpl implements IClienteService {
     @Transactional
     public Cliente save(Cliente cliente) {
         try {
-            // Asegurar que la región esté gestionada o exista en la BD para evitar el error 500 en pruebas
-            if (cliente.getRegion() != null && cliente.getRegion().getId() != null) {
-                Region regionBuscada = entityManager.find(Region.class, cliente.getRegion().getId());
-                if (regionBuscada != null) {
-                    cliente.setRegion(regionBuscada);
-                } else {
-                    // Si no existe en la BD de test, se crea dinámicamente
-                    Region nuevaRegion = cliente.getRegion();
-                    entityManager.persist(nuevaRegion);
-                    cliente.setRegion(nuevaRegion);
-                }
-            }
-
             return clienteDao.save(cliente);
         } catch (DataIntegrityViolationException ex) {
             throw new ClienteServiceException(
@@ -81,15 +63,8 @@ public class ClienteServiceImpl implements IClienteService {
         actual.setEmail(cliente.getEmail());
         actual.setFoto(cliente.getFoto());
 
-        if (cliente.getRegion() != null && cliente.getRegion().getId() != null) {
-            Region regionBuscada = entityManager.find(Region.class, cliente.getRegion().getId());
-            if (regionBuscada != null) {
-                actual.setRegion(regionBuscada);
-            } else {
-                Region nuevaRegion = cliente.getRegion();
-                entityManager.persist(nuevaRegion);
-                actual.setRegion(nuevaRegion);
-            }
+        if (cliente.getRegion() != null) {
+            actual.setRegion(cliente.getRegion());
         }
 
         try {
