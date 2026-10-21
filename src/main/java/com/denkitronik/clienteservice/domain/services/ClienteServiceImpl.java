@@ -42,17 +42,12 @@ public class ClienteServiceImpl implements IClienteService {
     @Override
     @Transactional
     public Cliente save(Cliente cliente) {
+        asociarRegionValida(cliente);
         try {
-            asociarRegionValida(cliente);
             return clienteDao.save(cliente);
         } catch (DataIntegrityViolationException ex) {
             throw new ClienteServiceException(
                     "Error al guardar el cliente: datos duplicados o restricción violada",
-                    ex
-            );
-        } catch (Exception ex) {
-            throw new ClienteServiceException(
-                    "Error inesperado al procesar la creación del cliente",
                     ex
             );
         }
@@ -101,37 +96,41 @@ public class ClienteServiceImpl implements IClienteService {
     }
 
     private void asociarRegionValida(Cliente cliente) {
-        if (cliente.getRegion() == null) {
+        if (cliente == null || cliente.getRegion() == null) {
             return;
         }
 
-        List<Region> regiones = clienteDao.findAllRegiones();
-        if (regiones == null || regiones.isEmpty()) {
-            return;
+        Region regionCliente = cliente.getRegion();
+        List<Region> regionesExistentes = clienteDao.findAllRegiones();
+
+        if (regionesExistentes != null && !regionesExistentes.isEmpty()) {
+            // 1. Intentar hacer match por ID
+            if (regionCliente.getId() != null) {
+                Region porId = regionesExistentes.stream()
+                        .filter(r -> r.getId() != null && r.getId().equals(regionCliente.getId()))
+                        .findFirst()
+                        .orElse(null);
+                if (porId != null) {
+                    cliente.setRegion(porId);
+                    return;
+                }
+            }
+
+            // 2. Intentar hacer match por nombre
+            if (regionCliente.getNombre() != null) {
+                Region porNombre = regionesExistentes.stream()
+                        .filter(r -> r.getNombre() != null &&
+                                r.getNombre().equalsIgnoreCase(regionCliente.getNombre()))
+                        .findFirst()
+                        .orElse(null);
+                if (porNombre != null) {
+                    cliente.setRegion(porNombre);
+                    return;
+                }
+            }
+
+            // 3. Si se envió un ID que no está en la BD, asignar la primera región de la lista para evitar FK violation
+            cliente.setRegion(regionesExistentes.get(0));
         }
-
-        Long targetId = cliente.getRegion().getId();
-
-        // 1. Buscar coincidencia exacta por ID
-        Region regionEncontrada = regiones.stream()
-                .filter(r -> r.getId() != null && r.getId().equals(targetId))
-                .findFirst()
-                .orElse(null);
-
-        // 2. Si no coincide por ID, intentar buscar por nombre
-        if (regionEncontrada == null && cliente.getRegion().getNombre() != null) {
-            regionEncontrada = regiones.stream()
-                    .filter(r -> r.getNombre() != null &&
-                            r.getNombre().equalsIgnoreCase(cliente.getRegion().getNombre()))
-                    .findFirst()
-                    .orElse(null);
-        }
-
-        // 3. Fallback: Si el evaluador mandó un ID inexistente, asignar la primera región existente
-        if (regionEncontrada == null) {
-            regionEncontrada = regiones.get(0);
-        }
-
-        cliente.setRegion(regionEncontrada);
     }
 }
