@@ -1,9 +1,9 @@
 package com.denkitronik.clienteservice.domain.services;
 
-import com.denkitronik.clienteservice.domain.exception.ClienteNotFoundException;
-import com.denkitronik.clienteservice.domain.exception.ClienteServiceException;
 import com.denkitronik.clienteservice.domain.entities.Cliente;
 import com.denkitronik.clienteservice.domain.entities.Region;
+import com.denkitronik.clienteservice.domain.exception.ClienteNotFoundException;
+import com.denkitronik.clienteservice.domain.exception.ClienteServiceException;
 import com.denkitronik.clienteservice.domain.repositories.IClienteDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
@@ -61,9 +62,19 @@ public class ClienteServiceImpl implements IClienteService {
         actual.setApellido(cliente.getApellido());
         actual.setEmail(cliente.getEmail());
         actual.setFoto(cliente.getFoto());
-        actual.setRegion(cliente.getRegion());
 
-        return clienteDao.save(actual);
+        if (cliente.getRegion() != null) {
+            actual.setRegion(cliente.getRegion());
+        }
+
+        try {
+            return clienteDao.save(actual);
+        } catch (DataIntegrityViolationException ex) {
+            throw new ClienteServiceException(
+                    "Error al actualizar el cliente: datos duplicados o restricción violada",
+                    ex
+            );
+        }
     }
 
     @Override
