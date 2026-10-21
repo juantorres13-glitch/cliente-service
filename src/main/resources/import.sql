@@ -1,11 +1,14 @@
-INSERT INTO regiones (nombre) VALUES ('Suramerica');
-INSERT INTO regiones (nombre) VALUES ('Centroamerica');
-INSERT INTO regiones (nombre) VALUES ('Norteamerica');
-INSERT INTO regiones (nombre) VALUES ('Europa');
-INSERT INTO regiones (nombre) VALUES ('Asia');
-INSERT INTO regiones (nombre) VALUES ('Africa');
-INSERT INTO regiones (nombre) VALUES ('Oceania');
-INSERT INTO regiones (nombre) VALUES ('Antartida');
+INSERT INTO regiones (id, nombre) VALUES (1, 'Suramerica');
+INSERT INTO regiones (id, nombre) VALUES (2, 'Centroamerica');
+INSERT INTO regiones (id, nombre) VALUES (3, 'Norteamerica');
+INSERT INTO regiones (id, nombre) VALUES (4, 'Europa');
+INSERT INTO regiones (id, nombre) VALUES (5, 'Asia');
+INSERT INTO regiones (id, nombre) VALUES (6, 'Africa');
+INSERT INTO regiones (id, nombre) VALUES (7, 'Oceania');
+INSERT INTO regiones (id, nombre) VALUES (8, 'Antartida');
+
+ALTER TABLE regiones ALTER COLUMN id RESTART WITH 9;
+
 INSERT INTO clientes (nombre, apellido, email, foto, region_id) VALUES ('Linus', 'Torvalds', 'linus@linux.org', 'linus.jpg', 4);
 INSERT INTO clientes (nombre, apellido, email, foto, region_id) VALUES ('James', 'Gosling', 'james@java.com', 'james.jpg', 3);
 INSERT INTO clientes (nombre, apellido, email, foto, region_id) VALUES ('Dennis', 'Ritchie', 'dennis@bell.com', 'dennis.jpg', 3);
