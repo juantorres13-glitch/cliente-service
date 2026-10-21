@@ -43,6 +43,19 @@ public class ClienteServiceImpl implements IClienteService {
     @Transactional
     public Cliente save(Cliente cliente) {
         try {
+            // Si la región viene en la petición, nos aseguramos de que no cause error de FK
+            if (cliente.getRegion() != null && cliente.getRegion().getId() != null) {
+                Long regionId = cliente.getRegion().getId();
+                // Buscar si la región ya existe en las regiones cargadas
+                Region regionExistente = clienteDao.findAllRegiones()
+                        .stream()
+                        .filter(r -> r.getId().equals(regionId))
+                        .findFirst()
+                        .orElse(cliente.getRegion());
+
+                cliente.setRegion(regionExistente);
+            }
+
             return clienteDao.save(cliente);
         } catch (DataIntegrityViolationException ex) {
             throw new ClienteServiceException(
