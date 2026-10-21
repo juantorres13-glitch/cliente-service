@@ -35,20 +35,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(respuesta);
     }
 
-    // ── 500 Internal Server Error ─────────────────────────────
+    // ── 400 Bad Request (Error en Regla de Negocio / BD) ──────
     @ExceptionHandler(ClienteServiceException.class)
     public ResponseEntity<ApiErrorResponse> manejarServiceException(
             ClienteServiceException ex) {
 
-        log.error("Error en el servicio de clientes", ex);
+        log.warn("Error en el servicio de clientes: {}", ex.getMessage());
 
         ApiErrorResponse respuesta = new ApiErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Internal Server Error",
-                "Error interno del servidor. Por favor intenta más tarde."
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage()
         );
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(respuesta);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respuesta);
     }
 
     // ── 400 Bad Request (validaciones @Valid) ─────────────────
